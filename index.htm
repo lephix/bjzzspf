@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Lephix">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="favicon.ico">
 
     <title>北京自住商品房摇号几率计算</title>
 
@@ -48,14 +48,14 @@
             <!--<p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>-->
             <p class="lead">
               <div class="input-group">
-                <input type="text" class="form-control main-input" id="serialNumber" placeholder="摇号编号"/>
+                <input type="text" class="form-control main-input" id="serialNumber" placeholder="您的13位摇号编号"/>
 
-                <input type="text" class="form-control main-input" id="startSeed" placeholder="起始种子号"/>
+                <input type="text" class="form-control main-input" id="startSeed" placeholder="计算的起始种子号"/>
 
-                <input type="text" class="form-control main-input" id="endSeed" placeholder="结束种子号"/>
+                <input type="text" class="form-control main-input" id="endSeed" placeholder="计算的结束种子号"/>
 
                 <div class="input-group-btn">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span id="select-button">选择</span> <span class="caret"></span></button>
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span id="select-button">选择楼盘</span> <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li><a href="#" id="z_jy_hxy">金隅·汇星苑</a></li>
                     <li><a href="#" id="z_jy_hjy">金隅·汇景苑</a></li>
@@ -65,18 +65,18 @@
                     <li><a href="#" id="z_dd_moma">当代·满庭春MOMA</a></li>
                   </ul>
                 </div><!-- /btn-group -->
-
-
-
                 <span class="input-group-btn">
-                  <button class="btn btn-success" type="button" id="search-button">查询</button>
+                  <button class="btn btn-success" type="button" id="search-button">计算</button>
                 </span>
 
               </div><!-- /input-group -->
-
-
-              <!--<a href="#" class="btn btn-lg btn-default">Learn more</a>-->
             </p>
+          </div>
+
+          <!-- Message alert -->
+          <div class="alert alert-danger fade in hidden" role="alert">
+            <button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <strong>提示：</strong><span id="alertMsg"></span>
           </div>
 
           <div class="mastfoot">
@@ -89,6 +89,7 @@
       </div>
     </div>
 
+    <!-- Modal Dialog -->
     <div class="modal fade" id="modalDialog">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -130,6 +131,10 @@
         $("#select-button").attr("value", $(this).attr("id"));
       });
 
+      $(".alert .close").click(function() {
+        closeAlert();
+      })
+
       $("#modalDialogCloseBtn").click(function() {
         if (processor !== undefined) {
           clearInterval(processor);
@@ -146,20 +151,21 @@
 
         // check input
         if (serialNumber.length != 13 || isNaN(serialNumber)) {
-          alert("编号必须为13位数字");
+          doAlert("编号必须为13位数字");
           return;
         }
-        if (startSeed < 0 || endSeed < 0 || 
+        if (startSeed == "" || endSeed == "" ||
+          startSeed < 0 || endSeed < 0 || 
           startSeed > 999999 || endSeed > 999999 || 
           isNaN(startSeed) || isNaN(endSeed) ||
           startSeed > endSeed ) {
-          alert("种子号输入有误");
+          doAlert("种子号输入有误");
           return;
         }
 
         // check selection
         if ($("#select-button").attr("value") == undefined) {
-          alert("请选择楼盘");
+          doAlert("请选择楼盘");
           return;
         }
 
@@ -207,8 +213,7 @@
 
           },
           error: function(jqXHR, textStatus, errorThrown) {
-            console.debug(textStatus);
-            console.debug(errorThrown);
+            doAlert(textStatus + errorThrown);
           }
         });
 
@@ -223,7 +228,7 @@
         var currentSelectionData = data[currentSelection];
 
         if (currentSelectionData === undefined) {
-          alert("数据没有准备好");
+          doAlert("数据没有准备好");
           return 0;
         }
         
@@ -245,6 +250,24 @@
         } 
       }
 
+      function doAlert(msg) {
+        $("#alertMsg").text(msg);
+        $(".alert").removeClass("hidden");
+      }
+      function closeAlert() {
+        $(".alert").addClass("hidden"); 
+      }
+
+    </script>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51711876-2', 'auto');
+      ga('send', 'pageview');
 
     </script>
   </body>
