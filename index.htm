@@ -205,8 +205,7 @@
           xhr: function() {
             var xhr = $.ajaxSettings.xhr();
             xhr.onprogress = function(evt){
-              console.debug(evt);
-              if (evt.lengthComputable) {
+              if (evt.loaded && !isNaN(evt.loaded)) {
                 $("#modalDialogTitle").text("下载住建委数据中.."+(evt.loaded/1024).toFixed(2)+"KB");
                 console.debug(evt.loaded + " " + evt.total);
               } else {
