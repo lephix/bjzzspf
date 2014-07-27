@@ -204,9 +204,10 @@
           type: "GET",
           xhr: function() {
             var xhr = $.ajaxSettings.xhr();
-            xhr.onprogress = function(evt){ 
+            xhr.onprogress = function(evt){
+              console.debug(evt);
               if (evt.lengthComputable) {
-                $("#modalDialogTitle").text("下载住建委数据中..."+(evt.loaded/1024).toFixed(2)+"KB");
+                $("#modalDialogTitle").text("下载住建委数据中.."+(evt.loaded/1024).toFixed(2)+"KB");
                 console.debug(evt.loaded + " " + evt.total);
               } else {
                 $("#modalDialogTitle").text("下载住建委数据中...");
