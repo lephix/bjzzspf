@@ -195,6 +195,7 @@
         $("#modalDialog").modal({backdrop: 'static', keyboard: false});
         $("#modalDialogTitle").text("准备中...");
         $("#computeProgressBar").css("width", "0%");
+        $("#computeProgressBar").text("0%");
 
         // load all people
         $.ajax({
@@ -206,7 +207,7 @@
             xhr.onprogress = function(evt){ 
               if (evt.lengthComputable) {
                 $("#modalDialogTitle").text("下载住建委数据中..."+(evt.loaded/1024).toFixed(2)+"KB");
-                //console.debug(evt.loaded + " " + evt.total);
+                console.debug(evt.loaded + " " + evt.total);
               } else {
                 $("#modalDialogTitle").text("下载住建委数据中...");
               }
