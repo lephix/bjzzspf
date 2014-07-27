@@ -110,7 +110,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" id="modalDialogTitle">Modal title</h4>
+            <h4 class="modal-title" id="modalDialogTitle"></h4>
           </div>
           <div class="modal-body">
             <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;" id="computeProgressBar">
@@ -193,6 +193,8 @@
 
         // initial and open modal dialog.
         $("#modalDialog").modal({backdrop: 'static', keyboard: false});
+        $("#modalDialogTitle").text("准备中...");
+        $("#computeProgressBar").css("width", "0%");
 
         // load all people
         $.ajax({
@@ -203,10 +205,10 @@
             var xhr = $.ajaxSettings.xhr();
             xhr.onprogress = function(evt){ 
               if (evt.lengthComputable) {
-                $("#modalDialogTitle").text("下载中住建委数据中..."+evt.loaded/1024+"KB");
+                $("#modalDialogTitle").text("下载住建委数据中..."+(evt.loaded/1024).toFixed(2)+"KB");
                 //console.debug(evt.loaded + " " + evt.total);
               } else {
-                $("#modalDialogTitle").text("下载中住建委数据中...");
+                $("#modalDialogTitle").text("下载住建委数据中...");
               }
               
               
@@ -216,8 +218,7 @@
           success: function(remoteData) {
             data[currentSelection] = remoteData;
 
-            $("#modalDialogTitle").text("处理中...");
-            $("#computeProgressBar").css("width", "0%");
+            $("#modalDialogTitle").text("计算中...");
 
             // start computing.
             var i = 0; 
