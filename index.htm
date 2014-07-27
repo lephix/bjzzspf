@@ -203,6 +203,7 @@
             var xhr = $.ajaxSettings.xhr();
             xhr.onprogress = function(evt){ 
               $("#modalDialogTitle").text("下载中..."+(evt.loaded/evt.total*100).toFixed(2)+"%");
+              console.debug("下载中..."+(evt.loaded/evt.total*100).toFixed(2)+"%");
             } ;
             return xhr;
           },
