@@ -139,9 +139,9 @@
       var serialNumber = "";
       var hit = 0;
       var hitPefect = 0;
-      var processor;
       var startSeed = 0;
       var endSeed = 0;
+      var processor, downloader;
 
       $("ul li a").click(function() {
         $("#select-button").text($(this).text());
@@ -169,6 +169,7 @@
         startSeed = $("#startSeed").val().trim();
         endSeed = $("#endSeed").val().trim();
         hit = 0;
+        hitPefect = 0;
 
         // check input
         if (serialNumber.length != 13 || isNaN(serialNumber)) {
@@ -190,18 +191,26 @@
           return;
         }
 
+        // initial and open modal dialog.
+        $("#modalDialog").modal({backdrop: 'static', keyboard: false});
+
         // load all people
         $.ajax({
           url: currentSelection + ".json",
           dataType : "json",
           type: "GET",
+          xhr: function() {
+            var xhr = $.ajaxSettings.xhr();
+            xhr.onprogress = function(evt){ 
+              $("#modalDialogTitle").text("下载中..."+(evt.loaded/evt.total*100).toFixed(2)+"%");
+            } ;
+            return xhr;
+          },
           success: function(remoteData) {
             data[currentSelection] = remoteData;
-            
-            // initial and open modal dialog.
+
             $("#modalDialogTitle").text("处理中...");
             $("#computeProgressBar").css("width", "0%");
-            $("#modalDialog").modal({backdrop: 'static', keyboard: false});
 
             // start computing.
             var i = 0; 
@@ -215,20 +224,19 @@
                 compute(parseInt(startSeed) + i, true);
                 i++;
 
+                // update modal dialog 
                 $("#computeProgressBar").css("width", parseInt(i/TIMES*100)+"%");
                 $("#computeProgressBar").text(parseInt(i/TIMES*100)+"%");
-                $("#progressInfo").text("计算进度:"+i+"/"+TIMES+" 入围次数:"+hit+" 入围几率:"+(hit/i*100).toFixed(2)+"%"+" 必得次数:"+hitPefect+" 必得几率:"+(hitPefect/i*100).toFixed(2)+"%")
-                //console.debug("computing:"+i+" percentage:"+parseInt(i/TIMES*100)+"%");
+                $("#progressInfo").html("计算进度:"+i+"/"+TIMES+"<br/>入围次数:"+hit+"<br/>入围几率:"+(hit/i*100).toFixed(2)+"%"+"<br/>必得次数:"+hitPefect+"<br/>必得几率:"+(hitPefect/i*100).toFixed(2)+"%")
                 
+                // stop processor if computing all data
                 if (i >= TIMES) {
                   clearInterval(processor);
                   processor = undefined;
                   $("#modalDialogTitle").text("处理完毕");
                   i = 0;
-                  hit = 0;
                   console.debug("Complete computing at " + Date.parse(new Date()) );
                 }
-
                 busy = false;
               }
             }, 30);
