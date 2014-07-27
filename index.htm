@@ -48,29 +48,45 @@
             <!--<p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>-->
             <p class="lead">
               <div class="input-group">
-                <input type="text" class="form-control main-input" id="serialNumber" placeholder="您的13位摇号编号"/>
-
-                <input type="text" class="form-control main-input" id="startSeed" placeholder="计算的起始种子号"/>
-
-                <input type="text" class="form-control main-input" id="endSeed" placeholder="计算的结束种子号"/>
-
-                <div class="input-group-btn">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span id="select-button">选择楼盘</span> <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    <li><a href="#" id="z_jy_hxy">金隅·汇星苑</a></li>
-                    <li><a href="#" id="z_jy_hjy">金隅·汇景苑</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#" id="z_sc_ydh">首创·悦都</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#" id="z_dd_moma">当代·满庭春MOMA</a></li>
-                  </ul>
-                </div><!-- /btn-group -->
-                <span class="input-group-btn">
-                  <button class="btn btn-success" type="button" id="search-button">计算</button>
-                </span>
-
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control main-input" id="serialNumber" placeholder="您的13位摇号编号"/>
+                    </div>
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control main-input" id="startSeed" placeholder="计算的起始种子号"/>
+                    </div>
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control main-input" id="endSeed" placeholder="计算的结束种子号"/>
+                    </div>
+                    <div class="col-sm-2">
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span id="select-button">选择楼盘</span> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                          <li><a href="#" id="z_jy_hxy" example-seed="338602" example-sn="9888000001096">金隅·汇星苑</a></li>
+                          <li><a href="#" id="z_jy_hjy" example-seed="995042" example-sn="8851000170705">金隅·汇景苑</a></li>
+                          <li class="divider"></li>
+                          <li><a href="#" id="z_sc_ydh" example-seed="964703" example-sn="9963000047376">首创·悦都</a></li>
+                          <li class="divider"></li>
+                          <li><a href="#" id="z_dd_moma" example-seed="480146" example-sn="1373000051203">当代·满庭春MOMA</a></li>
+                        </ul>
+                      </div><!-- /input-group-btn -->
+                    </div>
+                    <div class="col-sm-1">
+                      <span class="input-group-btn">
+                        <button class="btn btn-success" type="button" id="search-button">计算</button>
+                      </span>
+                    </div>
+                  </div><!-- /row -->
+                </div><!--/container -->
               </div><!-- /input-group -->
             </p>
+          </div>
+
+          <!-- Message alert -->
+          <div class="alert alert-info fade in hidden" role="alert">
+            <button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <span id="infoMsg"></span>
           </div>
 
           <!-- Message alert -->
@@ -122,6 +138,7 @@
       var currentSelection = "";
       var serialNumber = "";
       var hit = 0;
+      var hitPefect = 0;
       var processor;
       var startSeed = 0;
       var endSeed = 0;
@@ -129,10 +146,14 @@
       $("ul li a").click(function() {
         $("#select-button").text($(this).text());
         $("#select-button").attr("value", $(this).attr("id"));
+        doInfo("现场第一名获得者摇奖编号：<strong>"+$(this).attr("example-sn")+"</strong><br/>现场摇号种子：<strong>"+$(this).attr("example-seed")+"</strong>");
       });
 
-      $(".alert .close").click(function() {
+      $(".alert-danger .close").click(function() {
         closeAlert();
+      })
+      $(".alert-info .close").click(function() {
+        closeInfo();
       })
 
       $("#modalDialogCloseBtn").click(function() {
@@ -144,9 +165,9 @@
 
       $("#search-button").click(function() {
         currentSelection = $("#select-button").attr("value");
-        serialNumber = $("#serialNumber").val();
-        startSeed = $("#startSeed").val();
-        endSeed = $("#endSeed").val();
+        serialNumber = $("#serialNumber").val().trim();
+        startSeed = $("#startSeed").val().trim();
+        endSeed = $("#endSeed").val().trim();
         hit = 0;
 
         // check input
@@ -155,11 +176,11 @@
           return;
         }
         if (startSeed == "" || endSeed == "" ||
+          isNaN(startSeed) || isNaN(endSeed) ||
           startSeed < 0 || endSeed < 0 || 
           startSeed > 999999 || endSeed > 999999 || 
-          isNaN(startSeed) || isNaN(endSeed) ||
           startSeed > endSeed ) {
-          doAlert("种子号输入有误");
+          doAlert("6位种子号输入有误");
           return;
         }
 
@@ -172,6 +193,7 @@
         // load all people
         $.ajax({
           url: currentSelection + ".json",
+          dataType : "json",
           type: "GET",
           success: function(remoteData) {
             data[currentSelection] = remoteData;
@@ -186,7 +208,7 @@
             var busy = false;
             TIMES = endSeed - startSeed + 1;
             console.debug("Start computing at " + Date.parse(new Date()) );
-            processor = setInterval(function() {
+            processor = setInterval(function (){
               if (!busy) {
                 busy = true;
 
@@ -195,7 +217,7 @@
 
                 $("#computeProgressBar").css("width", parseInt(i/TIMES*100)+"%");
                 $("#computeProgressBar").text(parseInt(i/TIMES*100)+"%");
-                $("#progressInfo").text("计算进度:"+i+"/"+TIMES+" 命中次数:"+hit+" 命中几率:"+(hit/i*100).toFixed(2)+"%")
+                $("#progressInfo").text("计算进度:"+i+"/"+TIMES+" 入围次数:"+hit+" 入围几率:"+(hit/i*100).toFixed(2)+"%"+" 必得次数:"+hitPefect+" 必得几率:"+(hitPefect/i*100).toFixed(2)+"%")
                 //console.debug("computing:"+i+" percentage:"+parseInt(i/TIMES*100)+"%");
                 
                 if (i >= TIMES) {
@@ -209,7 +231,7 @@
 
                 busy = false;
               }
-            }, 50);
+            }, 30);
 
           },
           error: function(jqXHR, textStatus, errorThrown) {
@@ -240,6 +262,7 @@
             selectionData.push(currentSelectionData.list[rnext]);
             if (serialNumber == currentSelectionData.list[rnext]) {
               hit++;
+              if (j < currentSelectionData.perfect) hitPefect++;
               if (hitReturn) {
                 return;  
               }
@@ -251,11 +274,18 @@
       }
 
       function doAlert(msg) {
-        $("#alertMsg").text(msg);
-        $(".alert").removeClass("hidden");
+        $("#alertMsg").html(msg);
+        $(".alert-danger").removeClass("hidden");
       }
       function closeAlert() {
-        $(".alert").addClass("hidden"); 
+        $(".alert-danger").addClass("hidden"); 
+      }
+      function doInfo(msg) {
+        $("#infoMsg").html(msg);
+        $(".alert-info").removeClass("hidden");
+      }
+      function closeInfo() {
+        $(".alert-info").addClass("hidden"); 
       }
 
     </script>

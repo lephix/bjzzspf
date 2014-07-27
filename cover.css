@@ -52,9 +52,20 @@ body {
   margin-right: auto;
   margin-left: auto;
 }
+.cover-container .input-group {
+  margin-right: auto;
+  margin-left: auto; 
+}
 
-.input-group .main-input {
-  width: 33.33%;
+.row, .row .main-input, .row .col-sm-3, .row .col-sm-2, .row .col-sm-1
+{
+  padding: 0px;
+}
+.row .btn {
+  width: 100%;
+}
+.dropdown-menu-right {
+  left: 0px;
 }
 
 .cover-heading {
@@ -164,7 +175,7 @@ body {
   .masthead,
   .mastfoot,
   .cover-container {
-    width: 100%; /* Must be percentage or pixels for horizontal alignment */
+    width: 700px; /* Must be percentage or pixels for horizontal alignment */
   }
 }
 
